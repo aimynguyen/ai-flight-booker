@@ -79,9 +79,7 @@ Trong [react_agent.py](./agents/react_agent.py), `create_agent` kết hợp Gemi
 **Điểm yếu**
 
 - Kế hoạch LLM cũng chỉ được in ra và không ảnh hưởng đến luồng thực thi.
-- Hành trình và ngày bay đang được hard-code trong `execute_hybrid`; agent chưa thực sự dùng yêu cầu để định tuyến tìm kiếm.
 - Hybrid chỉ retry lỗi đặt chỗ. Lỗi thanh toán hoặc xác minh sẽ kết thúc tác vụ.
-- Bộ đếm bước trong harness không bao phủ nhất quán tất cả thao tác, nên số được báo cáo không phải số bước thực thi chính xác.
 
 **Đánh giá:** lựa chọn phù hợp nhất trong ba mẫu cho fixture đặt vé hiện tại vì kết hợp kiểm soát xác định với retry có giới hạn. Tuy nhiên, cần xử lý đầu vào động và chuẩn hóa đo lường trước khi dùng kết luận này cho môi trường thực tế.
 
@@ -101,43 +99,10 @@ Trong [tools.py](./tools.py), các fixture có ý nghĩa như sau:
 
 Theo logic dự kiến ở trên, tỷ lệ hoàn thành của Plan-then-Execute là **1/3** và Hybrid là **2/3** trên ba fixture. Đây là **ước lượng từ code**, không phải số liệu chạy thực nghiệm. Với ReAct, không báo tỷ lệ thành công giả định vì phụ thuộc vào phản hồi LLM và có lỗi tiềm tàng ở bước tra cứu booking.
 
-### Giới hạn của số bước trong `evaluation.py`
-
-- ReAct đếm số tool call trong kết quả, không đếm vòng suy luận LLM hay độ trễ.
-- Plan-then-Execute gán số bước theo trạng thái trả về (ví dụ thành công là 5).
-- Hybrid suy ra bước bằng công thức `3 + 2 * số chuyến đã thử`. Trong nhánh thành công một chuyến, tracker thực tế được tăng 6 lần; công thức lại báo 5. Nhánh thất bại vì không có chuyến hợp lệ báo 0 dù tracker đã được tăng. Vì vậy số bước giữa các agent không so sánh trực tiếp được.
-- Mỗi case chỉ được chạy một lần; không có tổng hợp độ lệch, latency, token, chi phí API hay mức tối ưu giá trên nhiều lần chạy.
-
-## 5. Nhận xét về phạm vi ứng dụng
-
-Endpoint `/chat` trong [app.py](./app.py) hiện chỉ import và gọi ReAct agent. Giao diện trong [frontend/script.js](./frontend/script.js) gửi nội dung hội thoại tới endpoint này; người dùng chưa thể chọn hoặc so sánh ba mẫu agent từ giao diện. Vì thế, hai luồng Plan-then-Execute và Hybrid hiện là các chương trình/kịch bản riêng, không phải các chế độ có thể chuyển đổi trong ứng dụng web.
-
-Ngoài ra, [test_react.py](./test_react.py) import `run_react_agent`, nhưng hàm đó không được định nghĩa trong [react_agent.py](./agents/react_agent.py). Cần sửa điểm bất nhất này trước khi coi file test riêng là cách kiểm chứng đáng tin cậy. Bộ chạy so sánh tập trung thực tế đang nằm trong [evaluation.py](./evaluation.py).
-
-## 6. Kết luận và khuyến nghị
+## 5. Kết luận và khuyến nghị
 
 | Mục tiêu                                        | Mẫu phù hợp nhất theo code hiện tại                      |
 | ----------------------------------------------- | -------------------------------------------------------- |
 | Linh hoạt khi luồng hành động biến đổi          | ReAct, sau khi sửa lỗi xác minh và phạm vi state/counter |
 | Luồng đơn giản, có thể dự đoán                  | Plan-then-Execute                                        |
 | Đặt vé có kiểm soát và chịu được lỗi đặt chuyến | Hybrid                                                   |
-
-**Khuyến nghị chung:** dùng Hybrid làm nền tảng cho quy trình đặt vé hiện tại, nhưng chưa nên coi đó là kết luận benchmark. Trước khi đánh giá định lượng hoặc đưa lên web, nên:
-
-1. Chuyển yêu cầu người dùng thành dữ liệu cấu trúc dùng chung (`BookingRequest`/`Constraints`) và bỏ các route/ngày hard-code trong cả Plan và Hybrid.
-2. Sửa `get_booking_tool` để tạo dict kết quả cục bộ; xác nhận lại đường thanh toán và xác minh.
-3. Điều chỉnh phát hiện lặp để cho phép retry hợp lệ với chuyến khác, đồng thời tạo budget/loop tracker riêng cho mỗi yêu cầu web.
-4. Đếm cùng một định nghĩa bước cho cả ba agent; ghi riêng số lần gọi LLM, gọi công cụ, độ trễ và chi phí nếu cần so sánh hiệu quả vận hành.
-5. Chạy lặp trên nhiều case thành công, không có chuyến phù hợp, đặt thất bại, thanh toán lỗi và input thay đổi; mock LLM khi kiểm thử logic xác định và tách benchmark Gemini thật thành một đợt đo riêng.
-
-## 7. Tài liệu code đã đối chiếu
-
-- [agents/react_agent.py](./agents/react_agent.py)
-- [agents/plan_then_execute.py](./agents/plan_then_execute.py)
-- [agents/hybrid_agent.py](./agents/hybrid_agent.py)
-- [tools.py](./tools.py)
-- [harness.py](./harness.py)
-- [models.py](./models.py)
-- [evaluation.py](./evaluation.py)
-- [test_react.py](./test_react.py), [test_plan.py](./test_plan.py), [test_hybrid.py](./test_hybrid.py)
-- [app.py](./app.py), [frontend/index.html](./frontend/index.html), [frontend/script.js](./frontend/script.js), [frontend/style.css](./frontend/style.css)
