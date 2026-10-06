@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SkyMate AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-icon">✈</div>
+
+          <div>
+            <h2>SkyMate</h2>
+            <span>AI Flight Assistant</span>
+          </div>
+        </div>
+
+        <button class="new-chat" onclick="newChat()">
+          <span>＋</span>
+          New conversation
+        </button>
+
+        <div class="sidebar-section">
+          <p class="section-title">QUICK ACTIONS</p>
+
+          <button
+            class="side-action"
+            onclick="
+              useSuggestion(
+                'Find the cheapest valid flight from SGN to DAD on 2026-10-07.',
+              )
+            "
+          >
+            <span class="action-icon">🔎</span>
+
+            <span>
+              <strong>Find a flight</strong>
+              <small>Search available flights</small>
+            </span>
+          </button>
+
+          <button
+            class="side-action"
+            onclick="
+              useSuggestion(
+                'Book the cheapest valid flight from SGN to DAD on 2026-10-07.',
+              )
+            "
+          >
+            <span class="action-icon">🎫</span>
+
+            <span>
+              <strong>Book a flight</strong>
+              <small>Book the best option</small>
+            </span>
+          </button>
+
+          <button
+            class="side-action"
+            onclick="
+              useSuggestion(
+                'Book the cheapest valid flight and complete the payment.',
+              )
+            "
+          >
+            <span class="action-icon">💳</span>
+
+            <span>
+              <strong>Complete booking</strong>
+              <small>Book & pay automatically</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="agent-status">
+            <span class="status-dot"></span>
+
+            <div>
+              <strong>AI Agent Online</strong>
+              <small>Gemini · Ready to help</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CHAT -->
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-title">
+            <div class="mobile-logo">✈</div>
+
+            <div>
+              <h1>Flight Assistant</h1>
+
+              <div class="online">
+                <span></span>
+                Online
+              </div>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <div class="constraint-badge">
+              <span>✓</span>
+              Smart constraints
+            </div>
+
+            <button class="clear-btn" onclick="newChat()">Clear</button>
+          </div>
+        </header>
+
+        <!-- CHAT -->
+        <section id="chat-box" class="chat-box">
+          <div class="welcome">
+            <div class="welcome-icon">✈</div>
+
+            <h2>Where would you like to fly?</h2>
+
+            <p>
+              I can search, book and complete your flight reservation using your
+              requirements.
+            </p>
+          </div>
+
+          <div class="message bot">
+            <div class="avatar bot-avatar">✦</div>
+
+            <div class="message-wrapper">
+              <div class="sender">
+                SkyMate AI
+                <span>•</span>
+                Just now
+              </div>
+
+              <div class="message-content">
+                <p>
+                  Hi! I'm your AI flight booking assistant. Tell me where you
+                  want to fly and I'll find the best valid option for you.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUGGESTIONS -->
+        <div class="suggestions">
+          <button
+            onclick="
+              useSuggestion(
+                'Find the cheapest valid flight from SGN to DAD on 2026-10-07.',
+              )
+            "
+          >
+            <span>💰</span>
+            Cheapest flight
+          </button>
+
+          <button
+            onclick="
+              useSuggestion(
+                'Find a flight from SGN to DAD under 2,000,000 VND.',
+              )
+            "
+          >
+            <span>🎯</span>
+            Under 2M VND
+          </button>
+
+          <button
+            onclick="
+              useSuggestion(
+                'Book the cheapest valid flight and complete the payment.',
+              )
+            "
+          >
+            <span>⚡</span>
+            Book & pay
+          </button>
+        </div>
+
+        <!-- INPUT -->
+        <div class="input-wrapper">
+          <form id="chat-form" class="input-area">
+            <button type="button" class="plus-btn" title="More options">
+              +
+            </button>
+
+            <input
+              id="message-input"
+              type="text"
+              placeholder="Ask me about your flight..."
+              autocomplete="off"
+            />
+
+            <button type="submit" class="send-btn">
+              <span>➤</span>
+            </button>
+          </form>
+
+          <p class="input-hint">
+            AI can search flights, book seats and complete payments.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
